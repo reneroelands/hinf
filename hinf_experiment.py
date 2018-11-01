@@ -20,7 +20,6 @@ w_bandwidth = 2*numpy.pi*f_bandwidth
 A = 0.01
 M = 2
 
-
 w1 = control.tf([ 1/M, w_bandwidth], [1.0, A*w_bandwidth])
 w2 = control.tf([1.],[1.])
 w3 = control.tf([1.0, w_bandwidth/M], [A, w_bandwidth])
