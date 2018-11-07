@@ -15,27 +15,27 @@ import matplotlib.pyplot as plt
 #-----------------------
 # attempt to create controller with integrator
 m = 200.0
-A = matrix([[0.0, 1.0, 0.0], [0.0, 0.0, 1.0], [0.0, 0.0, 0.0]])
-B = matrix([[0.0], [0.0],  [1/m]])
-C = matrix([[1.0, 0.0, 0.0]])
-D = matrix([[0.0]])
+A = matrix([[0.0, 1.0, 0.0], [0.0, 0.0, 0.0], [-1.0, 0.0, 0.0]])
+B = matrix([[0.0, 0.0], [1/m, 0.0],  [0.0, 1.0]])
+C = matrix([[-1.0, 0.0, 0.0]])
+D = matrix([[0.0, 1.0]])
 G = ss(A, B, C, D)
 P = ss2tf(G)
-#------
-W = matrix([[1.0]])
-V = 1e8*eye(3)
-Y = linalg.solve_continuous_are(A.transpose(), C.transpose(), V, W)
-L = Y*C.transpose()*inv(W)
+#------ ignore the kalman filter for now. The plant is exactly known ---
+#W = matrix([[1.0]])
+#V = 1*eye(3)
+#Y = linalg.solve_continuous_are(A.transpose(), C.transpose(), V, W)
+#L = Y*C.transpose()*inv(W)
 #-------------------
-R = matrix([[1.0]])
+R = matrix([[1.0, 0.0], [0.0, 1.0]])
 Q = matrix([[1.0, 0.0, 0.0], [0.0, 1e2, 0.0], [0.0, 0.0, 1.]])
 X = linalg.solve_continuous_are(A, B, Q, R)
 K = inv(R)*B.transpose()*X
 # synthesis, controller in state space
-Ac = A-L*C-B*K
-Bc = L
+Ac = A-B*K
+Bc = np.zeros((3,2))
 Cc = K
-Dc = D
+Dc = np.zeros((2,2))
 H = ss(Ac, Bc, Cc, Dc)
 F = ss2tf(H)
 # show open loop controller and plant

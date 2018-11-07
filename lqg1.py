@@ -32,8 +32,8 @@ Q = matrix([[1e2, 0.0], [0.0, 1.]])
 X = linalg.solve_continuous_are(A, B, Q, R)
 K = inv(R)*B.transpose()*X
 # synthesis, controller in state space
-Ac = A-B*K-L*C
-Bc = L
+Ac = A-B*K
+Bc = matrix([[0.0], [0.0]])
 Cc = K
 Dc = D
 H = ss(Ac, Bc, Cc, Dc)
@@ -47,4 +47,3 @@ nyquist(F*P)
 plt.figure()
 T, yout = step_response(F*P/(1+F*P),T= np.linspace(0,50,10000))
 plt.plot(T, yout)
-plt.grid()
