@@ -6,7 +6,7 @@ This is a temporary script file.
 """
 
 from control import tf, tf2ss, ssdata, ss, ss2tf
-from control import bode, nyquist
+from control import bode, nyquist, step_response
 import scipy.linalg as linalg
 from numpy import matrix
 import numpy as np
@@ -20,7 +20,7 @@ G = tf2ss(P)
 [A, B, C, D] = ssdata(G)
 #------
 W = matrix([[1.0]])
-V = 1e8*matrix([[1.0, 0.0], [0.0, 1.0]])
+V = 1e8*matrix([[1.0, 0.0], [0.0, 0.0]])
 Y = linalg.solve_continuous_are(A.transpose(), C.transpose(), V, W)
 L = Y*C.transpose()*inv(W)
 #-------------------
@@ -42,5 +42,5 @@ plt.figure()
 nyquist(F*P)
 
 plt.figure()
-T, yout =control.step_response(F*P/(1+F*P),T= np.linspace(0,50,10000))
+T, yout = step_response(F*P/(1+F*P),T= np.linspace(0,50,10000))
 plt.plot(T, yout)
