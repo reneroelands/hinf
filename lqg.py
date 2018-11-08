@@ -5,11 +5,7 @@ Spyder Editor
 This is a temporary script file.
 """
 
-<<<<<<< HEAD
-from control import tf, tf2ss, ssdata, ss, ss2tf
-=======
 from control import ss, ss2tf
->>>>>>> 0ea88b834822ce1487114b985d45fbf87bd31fb9
 from control import bode, nyquist, step_response
 import scipy.linalg as linalg
 from numpy import matrix
@@ -50,9 +46,5 @@ nyquist(F*P)
 
 plt.figure()
 T, yout = step_response(F*P/(1+F*P),T= np.linspace(0,50,10000))
-<<<<<<< HEAD
-plt.plot(T, yout)
-=======
 plt.plot(T, yout)
 plt.grid()
->>>>>>> 0ea88b834822ce1487114b985d45fbf87bd31fb9

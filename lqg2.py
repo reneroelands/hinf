@@ -14,7 +14,7 @@ from numpy.linalg import inv
 import matplotlib.pyplot as plt
 #-----------------------
 # attempt to create controller with integrator
-J = 4.0
+m = 4.0
 # default
 A = matrix([[0.0, 1.0], [0.0, 0.0]])
 B = matrix([[0.0], [1/m]])
