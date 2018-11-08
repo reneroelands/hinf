@@ -68,9 +68,9 @@ H = ss(Ag, Bg, Cg, Dg)
 F = ss2tf(H)
 # show open loop controller and plant
 plt.figure()
-bode(F*P)
+bode(F*P, 2*np.logspace(-1,3))
 plt.figure()
-nyquist(F*P)
+nyquist(F*P, 2*np.pi*np.logspace(-1,3))
 
 T, yout = step_response(F*P/(1+F*P),T= np.linspace(0,50,10000))
 # calculate u
