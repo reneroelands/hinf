@@ -27,13 +27,30 @@ P = ss2tf(G)
 #
 # xdot = A x + B1 w + B2 u
 #  z   = C1 x + D11 w + D12 u
-#  y   = C1 x + D21 w + D22 u
+#  y   = C2 x + D21 w + D22 u
 # 
+B1 = matrix([[0.0], [1.0e-6]])
+B2 = B
+C1 = matrix([[0.0, -1.0], [0.0, 0.0]])
+C2 = matrix([[0.0, 1.0]])
+D12 = matrix([[0.0], [1.0]])
+D22 = D
+
 # AT X + X A - X (B2 B2T -gamma² B1 B1T] X + C1T C1
 # A Y + YT A - Y (C2T C2 -gamma² C1T C1] X + B1 B1T
 # compare LQG
 # K:  AT S + S A - S B inv(R) BT S + Q
 # L:  A P + AT P - P CT inv(W) C P + V
-gamma = 2
+gamma = 1e6
+B = np.concatenate((B2, B1), 1)
+R = inv(matrix([[1.0, 0.0], [0.0, -gamma**2]]))
+Q = C1.transpose()*C1
+
+C = np.concatenate((C2,  C1), 0)
+
+V = B1*B1.transpose()
+W1 = np.eye(3)
+W1[2,2] = -gamma**2
+W = inv(W1)
 X = linalg.solve_continuous_are(A, B, Q, R)
 Y = linalg.solve_continuous_are(A.transpose(), C.transpose(), V, W)
