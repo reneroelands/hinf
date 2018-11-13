@@ -29,7 +29,7 @@ P = ss2tf(G)
 #  z   = C1 x + D11 w + D12 u
 #  y   = C2 x + D21 w + D22 u
 # 
-B1 = matrix([[0.0], [1.0e-6]])
+B1 = matrix([[1e-6], [1.0e-6]])
 B2 = B
 C1 = matrix([[0.0, -1.0], [0.0, 0.0]])
 C2 = matrix([[0.0, 1.0]])
