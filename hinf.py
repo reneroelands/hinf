@@ -31,8 +31,8 @@ P = ss2tf(G)
 # 
 B1 = matrix([[1e-6], [1.0e-6]])
 B2 = B
-C1 = matrix([[0.0, -1.0], [0.0, 0.0]])
-C2 = matrix([[0.0, 1.0]])
+C1 = matrix([[1.0, 0.0], [0.0, 0.0]])
+C2 = matrix([[1.0, 0.0]])
 D12 = matrix([[0.0], [1.0]])
 D22 = D
 
@@ -41,7 +41,7 @@ D22 = D
 # compare LQG
 # K:  AT S + S A - S B inv(R) BT S + Q
 # L:  A P + AT P - P CT inv(W) C P + V
-gamma = 1e6
+gamma = 1e7
 B = np.concatenate((B2, B1), 1)
 R = inv(matrix([[1.0, 0.0], [0.0, -gamma**2]]))
 Q = C1.transpose()*C1
@@ -54,3 +54,6 @@ W1[2,2] = -gamma**2
 W = inv(W1)
 X = linalg.solve_continuous_are(A, B, Q, R)
 Y = linalg.solve_continuous_are(A.transpose(), C.transpose(), V, W)
+# matrix solution
+linalg.eig(A+((gamma**-2)*B1*B1.transpose()-B2*B2.transpose())*X)
+linalg.eig(A+Y*(gamma**(-2))*C1.transpose()*C1 - C2.transpose()*C2)
