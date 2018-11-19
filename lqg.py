@@ -27,8 +27,8 @@ V = 1e8*matrix([[1.0, 0.0], [0.0, 0.0]])
 Y = linalg.solve_continuous_are(A.transpose(), C.transpose(), V, W)
 L = Y*C.transpose()*inv(W)
 #-------------------
-R = matrix([[1.0]])
-Q = matrix([[1e2, 0.0], [0.0, 1.]])
+R = matrix([[1e-3]])
+Q = matrix([[1.0, 0.0], [0.0, 1e2]])
 X = linalg.solve_continuous_are(A, B, Q, R)
 K = inv(R)*B.transpose()*X
 # synthesis, controller in state space

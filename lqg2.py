@@ -40,7 +40,7 @@ Y = linalg.solve_continuous_are(A.transpose(), C.transpose(), V, W)
 L = Y*C.transpose()*inv(W)
 #-------------------
 R = matrix([[1000.0]])
-Q = matrix([[1e4, 0.0, 0.0], [0.0, 0, 0.0], [0.0, 0.0, 100]])
+Q = matrix([[1e3, 0.0, 0.0], [0.0, 1e2, 0.0], [0.0, 0.0, 100]])
 Xr = linalg.solve_continuous_are(Ar, Br, Q, R)
 Kr = inv(R)*Br.transpose()*Xr
 K = Kr[0,0:2]
