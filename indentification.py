@@ -22,8 +22,8 @@ B = np.matrix([[0.0], [1/m]])
 C = np.matrix([[1.0, 0.0]])
 D = np.matrix([[0.0]])
 G = c.ss(A, B, C, D)
-
-time = np.arange(0, 1, 1e-4)
+dt = 1e-4
+time = np.arange(0, 1, dt)
 f = 20.0
 u = np.sin(2*np.pi*f*time)
 t, y, x = c.forced_response(G, T=time, U=u)
@@ -47,12 +47,17 @@ L = Y*Ce.transpose()*la.inv(W)
 #-------------------
 # synthesis, controller in state space
 Ac = Ae-L*C
-Bc = L
+Bc = np.concatenate((L, Be),1)
 Cc = C
-Dc = np.zeros((1,1))
+Dc = np.zeros((1,2))
 Ge = c.ss(Ac, Bc, Cc, Dc)
-t, ye, xe = c.forced_response(Ge, T=time, U=z)
+u1 = np.matrix([z,u])
+t, ye, xe = c.forced_response(Ge, T=time, U=u1)
 
 plt.figure()
+plt.subplot(2,1,1)
 plt.plot(t,y,t,ye)
+plt.grid()
+plt.subplot(2,1,2)
+plt.plot(t, y-ye)
 plt.grid()
