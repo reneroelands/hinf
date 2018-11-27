@@ -128,7 +128,7 @@ if __name__ == "__main__":
     p['H'] = 25
     p['w2'] = 2*np.pi*10 # anti-resonance
     p['n2'] = 0.001
-    p['w1'] = 2*np.pi*100 # resonance
+    p['w1'] = 2*np.pi*90 # resonance
     p['n1'] = 1e-3
     w = 2*np.pi*f_multisine
     Tuy_dB = 20*np.log10(abs(Tuy_multisine))
@@ -178,12 +178,14 @@ if __name__ == "__main__":
             B_dB[r] = np.sum((Tuy_dB-X_dB)*X_dBdp[plist[r]])
     
         Delta_p = np.dot(np.linalg.inv(A_dB),B_dB)
-        mu = 1e-4
+        mu = 1e-3
         
         for r in range(nr_parameters):
             p[plist[r]] = p[plist[r]] + mu*Delta_p[r]
-
+        
+        print('Iteration: ' + str(iteration) + ', lambda: ' + str(lambda_dB))
     
     plt.figure()
     plt.semilogx(f_multisine, Tuy_dB, '.', f_multisine, X_dB)
-    print('Iteration: ' + iteration + 'lambda_)
+    
+    
