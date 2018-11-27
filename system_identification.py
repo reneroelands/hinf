@@ -28,7 +28,7 @@ import scipy.signal as signal
 # import the multisine, a decent install of the multisine needs to be 
 # implemented
 import importlib.util
-spec = importlib.util.spec_from_file_location("MultiSine", "D:\LocalProjects\Development\hinf\MultiSine.py")
+spec = importlib.util.spec_from_file_location("MultiSine", "MultiSine.py")
 multisine = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(multisine)
 
@@ -84,6 +84,7 @@ if __name__ == "__main__":
     nr_ignored = 5
     Uc = U[int(nr_ignored*(nr_data_points/nr_repeats)+1):]
     Yc = Yout[int(nr_ignored*(nr_data_points/nr_repeats)+1):]
+    Tc = T[0:len(Yc)]
     freq, Puu = signal.csd( Uc, Uc, fs, nperseg=nr_data_points/nr_repeats,\
                             window='boxcar', scaling='density',\
                             return_onesided=True )
@@ -109,83 +110,137 @@ if __name__ == "__main__":
     plt.subplot(212)
     plt.semilogx(f_multisine, np.angle(Tuy_multisine), '.')
     
-    # multiply with w^2
-    # skipped for now, until the stability of the plant is solved
+#    # multiply with w^2
+#    # skipped for now, until the stability of the plant is solved
+#    
+#    # indentify second order part.
+#    # based on the equations found in "Curve fitting of frequency response 
+#    # functions by use of pole-zero models for the loss factor measurement"
+#    # Suzuki, Nakazawa, Ono, Kido. [2001]
+#    #
+#    # Jacobian in of the log10 of the model.
+#    #
+#    # The model has 5 parameters: H (amplitude), w1 and w2 (frequencies) and 
+#    # n1 and n2, damping values
+#    # 
+#    # initial value: from the model P
+#    plist= ['H', 'w1', 'n1', 'w2', 'n2']
+#    plist= ['H', 'w1', 'w2']
+#    p = dict.fromkeys(plist)
+#    p['H'] = 25
+#    p['w2'] = 2*np.pi*10 # anti-resonance
+#    #p['n2'] = 0.001
+#    p['w1'] = 2*np.pi*100 # resonance
+#    #p['n1'] = 1e-3
+#    nr_parameters = len(p)
+#    
+#    w = 2*np.pi*f_multisine
+#    Tuy_dB = 20*np.log10(abs(Tuy_multisine))
+#  
+#    for iteration in range(100):
+#        # unpack for readability of formulas
+#        H = p['H']
+#        w1 = p['w1']
+#        #n1 = p['n1']
+#        n1 = 1e-3
+#        w2 = p['w2']
+#        #n2 = p['n2']
+#        n2 = 1e-3
+#        
+#        X_dB = 20*np.log10(H) + 10 *np.log10((w2**2-w**2)**2 + (w2*n2*w)**2) \
+#              -10 *np.log10((w1**2-w**2)**2 + (w1*n2*w)**2)
+#        
+#        # cost function
+#        lambda_dB = np.sum((Tuy_dB-X_dB)**2)
+#    
+#        # remove this hardcoded number later
+#        X_dBdp = np.zeros(nr_parameters )
+#        # calculate the hamiltonian elements
+#        
+#        X_dBdp = dict.fromkeys(plist)
+#        
+#        X_dBdp['H'] =  (20/np.log(10))*( 1/H )
+#    
+#        X_dBdp['w1'] = -(10/np.log(10))* ( 4*(w1**2 - w**2)*w1 + 2*(w1*n1*w)*w*n1 )\
+#                         /((w1**2 - w**2)**2 + (w1*n1*w)**2)
+#    
+#        X_dBdp['n1'] = -(10/np.log(10))* ( 2*(w1*n1*w)*w1*w )\
+#                         /((w1**2 - w**2)**2 + (w1*n1*w)**2)
+#    
+#        X_dBdp['w2'] =  (10/np.log(10))* ( 4*(w2**2 - w**2)*w2 + 2*(w2*n2*w)*w*n2 )\
+#                         /((w2**2 - w**2)**2 + (w2*n2*w)**2)
+#        
+#        X_dBdp['n2'] =  (10/np.log(10))* ( 2*(w2*n2*w)*w2*w )\
+#                         /((w2**2 - w**2)**2 + (w2*n2*w)**2)
+#                     
+#        
+#        A_dB = np.zeros((nr_parameters, nr_parameters))
+#        B_dB = np.zeros((nr_parameters,1))
+#        for r in range(nr_parameters):
+#            for c in range(nr_parameters):
+#                A_dB[r,c] = np.sum(X_dBdp[plist[r]]*X_dBdp[plist[c]])
+#    
+#            B_dB[r] = np.sum((Tuy_dB-X_dB)*X_dBdp[plist[r]])
+#    
+#        Delta_p = np.dot(np.linalg.inv(A_dB),B_dB)
+#        mu = 2.5e-4
+#        
+#        for r in range(nr_parameters):
+#            p[plist[r]] = p[plist[r]] + mu*Delta_p[r]
+#
+#        print('Iteration: ' + str(iteration) + ' lambda_dB: ' + str(lambda_dB))
+#
+#    
+#    plt.figure()
+#    plt.semilogx(f_multisine, Tuy_dB, '.', f_multisine, X_dB)
     
-    # indentify second order part.
-    # based on the equations found in "Curve fitting of frequency response 
-    # functions by use of pole-zero models for the loss factor measurement"
-    # Suziki, Nakazawa, Ono, Kido. [2001]
+    # this method doesn´t seem to converge.
+#%% let's try model predictive error
+    
+    model_order = 2
+    theta_keys = []
     #
-    # Jacobian in of the log10 of the model.
-    #
-    # The model has 5 parameters: H (amplitude), w1 and w2 (frequencies) and 
-    # n1 and n2, damping values
-    # 
-    # initial value: from the model P
-    plist= ['H', 'w1', 'n1', 'w2', 'n2']
-    p = dict.fromkeys(plist)
-    p['H'] = 25
-    p['w2'] = 2*np.pi*10 # anti-resonance
-    p['n2'] = 0.001
-    p['w1'] = 2*np.pi*90 # resonance
-    p['n1'] = 1e-3
-    w = 2*np.pi*f_multisine
-    Tuy_dB = 20*np.log10(abs(Tuy_multisine))
-  
-    for iteration in range(100):
-        # unpack for readability of formulas
-        H = p['H']
-        w1 = p['w1']
-        n1 = p['n1']
-        w2 = p['w2']
-        n2 = p['n2']
-        
-        X_dB = 20*np.log10(H) + 10 *np.log10((w2**2-w**2)**2 + (w2*n2*w)**2) \
-              -10 *np.log10((w1**2-w**2)**2 + (w1*n2*w)**2)
-        
-        # cost function
-        lambda_dB = np.sum((Tuy_dB-X_dB)**2)
+    for k in range(model_order+1):
+        theta_keys.append('a'+str(k))
+
+    for k in range(model_order+1):
+        theta_keys.append('b'+str(k))
     
-        # remove this hardcoded number later
-        nr_parameters = 5
-        X_dBdp = np.zeros(nr_parameters )
-        # calculate the hamiltonian elements
-        
-        X_dBdp = dict.fromkeys(plist)
-        
-        X_dBdp['H'] =  (20/np.log(10))*( 1/H )
+    # create dict
+    theta_dict = dict().fromkeys(theta_keys)
     
-        X_dBdp['w1'] = -(10/np.log(10))* ( 4*(w1**2 - w**2)*w1 + 2*(w1*n1*w)*w*n1 )\
-                         /((w1**2 - w**2)**2 + (w1*n1*w)**2)
+    # consider an initial value for the dict later
     
-        X_dBdp['n1'] = -(10/np.log(10))* ( 2*(w1*n1*w)*w1*w )\
-                         /((w1**2 - w**2)**2 + (w1*n1*w)**2)
+    # create an array
+    nr_parameters = len(theta_dict)
+    theta = np.ones((nr_parameters))
     
-        X_dBdp['w2'] =  (10/np.log(10))* ( 4*(w2**2 - w**2)*w2 + 2*(w2*n2*w)*w*n2 )\
-                         /((w2**2 - w**2)**2 + (w2*n2*w)**2)
-        
-        X_dBdp['n2'] =  (10/np.log(10))* ( 2*(w2*n2*w)*w2*w )\
-                         /((w2**2 - w**2)**2 + (w2*n2*w)**2)
-                     
-        
-        A_dB = np.zeros((5,5))
-        B_dB = np.zeros((5,1))
-        for r in range(nr_parameters):
-            for c in range(nr_parameters):
-                A_dB[r,c] = np.sum(X_dBdp[plist[r]]*X_dBdp[plist[c]])
+    nr_points = len(Uc)
+    # construct phi
+    nr_phi_rows = nr_parameters 
+    nr_phi_columns = nr_points - model_order - 1
+    phi = np.matrix(np.zeros((nr_phi_rows, nr_phi_columns)))
     
-            B_dB[r] = np.sum((Tuy_dB-X_dB)*X_dBdp[plist[r]])
+    # fill phi, first y
+    for r in range(model_order+1):
+        for c in range(nr_phi_columns):
+            # data set. the first row core
+            phi[r,c] = Yc[c + model_order - r]
+    for r in range(model_order+1):
+        for c in range(nr_phi_columns):
+            # data set
+            phi[r+model_order+ 1,c] = Uc[c + model_order - r]
     
-        Delta_p = np.dot(np.linalg.inv(A_dB),B_dB)
-        mu = 1e-3
-        
-        for r in range(nr_parameters):
-            p[plist[r]] = p[plist[r]] + mu*Delta_p[r]
-        
-        print('Iteration: ' + str(iteration) + ', lambda: ' + str(lambda_dB))
+    y = np.matrix(Yc[(model_order+1):])
+    theta = np.dot(np.dot(y, phi.transpose()),np.linalg.inv(np.dot(phi,phi.transpose())))
+    # calculate 
+    yd = np.dot(theta, phi).transpose()
+    td = np.matrix(Tc[(model_order+1):]).transpose()
+    # the scaling is not part of the model
+    plt.figure()
+    plt.plot(td, 0.845*yd, td, y.transpose())
     
     plt.figure()
-    plt.semilogx(f_multisine, Tuy_dB, '.', f_multisine, X_dB)
+    plt.plot(td, 0.845*yd-y.transpose())
     
-    
+
